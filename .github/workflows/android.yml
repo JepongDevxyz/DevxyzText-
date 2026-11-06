@@ -41,14 +41,27 @@ jobs:
       # Release build signed with Jepong's own key — only runs once the four
       # signing secrets exist in this repo (KEYSTORE_BASE64, KEYSTORE_PASSWORD,
       # KEY_ALIAS, KEY_PASSWORD). Until then these steps skip cleanly.
+      # NOTE: the `secrets` context is not allowed in step `if:` expressions,
+      # so presence is detected in this shell step and passed via outputs.
+      - name: Check signing secrets
+        id: signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Decode release keystore
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        if: steps.signing.outputs.present == 'true'
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
 
       - name: Build signed release APK
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        if: steps.signing.outputs.present == 'true'
         env:
           KEYSTORE_FILE: ${{ runner.temp }}/release.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -57,7 +70,7 @@ jobs:
         run: gradle assembleRelease --stacktrace
 
       - name: Upload signed release APK
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        if: steps.signing.outputs.present == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: DevxyzText-release-apk
