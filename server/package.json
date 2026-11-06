@@ -1,0 +1,1 @@
+{"description":"DevxyzText backend - own-SIM SMS gateway API + dashboard (zero dependencies)","engines":{"node":">=18"},"main":"server.js","name":"devxyztext-server","private":true,"scripts":{"start":"node server.js","test":"node test.js"},"version":"1.0.0"}
