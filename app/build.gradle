@@ -11,12 +11,33 @@ android {
         applicationId "com.jepongdevxyz.devxyztext"
         minSdk 24
         targetSdk 33
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 2
+        versionName "1.1.0"
+    }
+
+    // Release signing with Jepong's own key. The keystore itself is never in
+    // the repo: CI decodes it from the KEYSTORE_BASE64 secret into the path in
+    // KEYSTORE_FILE and passes the passwords via env. When the file is absent
+    // (no secrets set yet), the release build stays unsigned instead of
+    // failing, and the debug build is unaffected.
+    signingConfigs {
+        release {
+            def ksFile = System.getenv("KEYSTORE_FILE")
+            if (ksFile && file(ksFile).exists()) {
+                storeFile file(ksFile)
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
         release {
+            def ksFile = System.getenv("KEYSTORE_FILE")
+            if (ksFile && file(ksFile).exists()) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

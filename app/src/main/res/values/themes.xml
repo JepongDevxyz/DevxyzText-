@@ -2,4 +2,12 @@
 <resources>
     <!-- Day/night Material theme: follows the system dark/light setting. -->
     <style name="Theme.DevxyzText" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
+
+    <!-- Branded splash: solid navy window so there is no white flash on launch. -->
+    <style name="Theme.DevxyzText.Splash" parent="Theme.DevxyzText">
+        <item name="android:windowBackground">@color/splash_bg</item>
+        <item name="android:statusBarColor">@color/splash_bg</item>
+        <item name="android:navigationBarColor">@color/splash_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 </resources>
